@@ -499,4 +499,31 @@ describe "Junit annotate plugin parser" do
 
     assert_equal 0, status.exitstatus
   end
+
+  it "reports specified amount of slowest tests" do
+    output, status = Open3.capture2e("env", "BUILDKITE_PLUGIN_JUNIT_ANNOTATE_REPORT_SLOWEST=5", "#{__dir__}/../bin/annotate", "#{__dir__}/no-test-failures/")
+
+    assert_equal <<~OUTPUT, output
+      Parsing junit-1.xml
+      Parsing junit-2.xml
+      Parsing junit-3.xml
+      --- ❓ Checking failures
+      8 testcases found
+      There were no failures/errors 🙌
+      --- ✍️ Preparing annotation
+      <table>
+      <caption>5 slowest tests</caption>
+      <thead><tr><th>Unit</th><th>Test</th><th>Time</th></tr></thead>
+      <tbody>
+      <tr><td>spec.models.account_spec</td><td>Account#maximum_jobs_added_by_pipeline_changer returns 250 by default</td><td>0.977127</td></tr>
+      <tr><td>spec.models.account_spec</td><td>Account#maximum_jobs_added_by_pipeline_changer returns 250 by default</td><td>0.967127</td></tr>
+      <tr><td>spec.models.account_spec</td><td>Account#maximum_jobs_added_by_pipeline_changer returns 500 if the account is ABC</td><td>0.620013</td></tr>
+      <tr><td>spec.models.account_spec</td><td>Account#maximum_jobs_added_by_pipeline_changer returns 900 if the account is F00</td><td>0.520013</td></tr>
+      <tr><td>spec.models.account_spec</td><td>Account#maximum_jobs_added_by_pipeline_changer returns 700 if the account is XYZ</td><td>0.420013</td></tr>
+      </tbody>
+      </table>
+    OUTPUT
+
+    assert_equal 0, status.exitstatus
+  end
 end
